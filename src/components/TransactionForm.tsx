@@ -22,13 +22,20 @@ interface Props {
   onSubmit: (data: TransactionForm) => void;
   customers: Customer[];
   preselectedCustomerId?: string;
+  isSubmitting?: boolean;
 }
 
-export default function TransactionForm({ onClose, onSubmit, customers, preselectedCustomerId }: Props) {
+export default function TransactionForm({ 
+  onClose, 
+  onSubmit, 
+  customers, 
+  preselectedCustomerId,
+  isSubmitting = false 
+}: Props) {
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting },
+    formState: { errors },
   } = useForm<TransactionForm>({
     resolver: zodResolver(transactionSchema),
     defaultValues: {
@@ -63,7 +70,7 @@ export default function TransactionForm({ onClose, onSubmit, customers, preselec
                 <option value="">Select a customer</option>
                 {customers.map((customer) => (
                   <option key={customer.id} value={customer.id}>
-                    {customer.name}
+                    {customer.firstName} {customer.middleName} {customer.lastName}
                   </option>
                 ))}
               </select>

@@ -26,3 +26,12 @@ export interface Transaction {
   date: string;
   notes?: string;
 }
+
+export interface AuthState {
+  user: User | null;
+  isLoading: boolean;
+  error: string | null;
+  login: (email: string, password: string) => Promise<void>;
+  logout: () => Promise<void>;
+  clearError: () => void;
+}

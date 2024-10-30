@@ -7,20 +7,23 @@ import { useDataStore } from '../store/data';
 export default function Transactions() {
   const [searchTerm, setSearchTerm] = useState('');
   const [showTransactionForm, setShowTransactionForm] = useState(false);
-  const { customers, transactions, addTransaction } = useDataStore();
+  const { customers, transactions, addTransaction, isLoading } = useDataStore();
 
-  const handleAddTransaction = (data: any) => {
-    addTransaction(data);
+  const handleAddTransaction = async (data: any) => {
+    await addTransaction(data);
     setShowTransactionForm(false);
   };
 
   const filteredTransactions = transactions
     .map(transaction => ({
       ...transaction,
-      customerName: customers.find(c => c.id === transaction.customerId)?.name || 'Unknown',
+      customer: customers.find(c => c.id === transaction.customerId),
     }))
     .filter(transaction =>
-      transaction.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      transaction.customer && 
+      `${transaction.customer.firstName} ${transaction.customer.middleName} ${transaction.customer.lastName}`
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase()) ||
       transaction.notes?.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
@@ -85,12 +88,14 @@ export default function Transactions() {
                     {new Date(transaction.date).toLocaleDateString()}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <Link
-                      to={`/customers/${transaction.customerId}`}
-                      className="text-sm text-blue-600 hover:text-blue-900"
-                    >
-                      {transaction.customerName}
-                    </Link>
+                    {transaction.customer && (
+                      <Link
+                        to={`/customers/${transaction.customerId}`}
+                        className="text-sm text-blue-600 hover:text-blue-900"
+                      >
+                        {transaction.customer.firstName} {transaction.customer.middleName} {transaction.customer.lastName}
+                      </Link>
+                    )}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span
@@ -121,6 +126,7 @@ export default function Transactions() {
           onClose={() => setShowTransactionForm(false)}
           onSubmit={handleAddTransaction}
           customers={customers}
+          isSubmitting={isLoading}
         />
       )}
     </div>
